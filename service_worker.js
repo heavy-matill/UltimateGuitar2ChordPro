@@ -19,20 +19,22 @@
         setTimeout(() => { chrome.tabs.create({ url: 'https://chords.menees.com/' }) }, 1000)
     }
 });*/
-chrome.action.onClicked.addListener(() => {
-    chrome.tabs.create({
-        url: chrome.runtime.getURL("index.html"),
-        active: true
-    },
-        function (tab) {
-            setTimeout(function () {
-                chrome.tabs.executeScript(tab.id, { file: "content.js" });
-                setTimeout(function () {
-                    chrome.tabs.sendMessage(tab.id, { "Active Objects": "elo" });
-                }, 1000);
-            }, 1000);
-        });
 
-    //win.document.getElementById("source").value = "bar"; // Modify that page
-    //win.parseUG();
-})
+chrome.action.onClicked.addListener(async () => {
+    let tab
+    const localURL = chrome.runtime.getURL("index.html");
+    // check if tab exists:
+    const tabs = await chrome.tabs.query({
+        url: [localURL]
+    });
+    if (tabs.length) {
+        tab = tabs[0]
+        chrome.tabs.update(tab.id, { active: true })
+    } else {
+        tab = await chrome.tabs.create({
+            url: localURL,
+            active: true
+        })
+    }
+    chrome.tabs.sendMessage(tab.id, { "ug": "elo" });
+});

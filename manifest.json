@@ -4,10 +4,19 @@
     "version": "1.0",
     "description": "UltimateGuitar2ChordPro Converter",
     "permissions": [
-        "activeTab"
+        "tabs",
+        "activeTab",
+        "scripting",
+        "<all_urls>"
     ],
+    "web_accessible_resources": [{
+        "resources": ["content.js"],
+        "matches": ["<all_urls>"]
+    }],
     "action": {},
-    "background": {"service_worker": "service_worker.js"},
+    "background": {
+        "service_worker": "service_worker.js"
+    },
     "content_scripts": [{
         "matches": ["*://*.ultimate-guitar.com/tab/*"],
         "js": ["ChordSheetJS.bundle.js", "ultimate-guitar.js"],
