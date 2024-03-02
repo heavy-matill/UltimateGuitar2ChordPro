@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "UltimateGuitar2ChordPro",
+    "version": "1.0",
+    "description": "UltimateGuitar2ChordPro Converter",
+    "permissions": [
+        "activeTab"
+    ],
+    "action": {},
+    "background": {"service_worker": "service_worker.js"},
+    "content_scripts": [{
+        "matches": ["*://*.ultimate-guitar.com/tab/*"],
+        "js": ["ChordSheetJS.bundle.js", "ultimate-guitar.js"],
+        "run_at": "document_end"
+    }]
+}

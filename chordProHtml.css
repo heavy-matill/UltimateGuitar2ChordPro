@@ -1,0 +1,6 @@
+.tab>* {
+  font-family: monospace;
+}
+#render>*{
+  white-space: nowrap;
+}
