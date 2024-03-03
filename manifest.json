@@ -9,10 +9,6 @@
         "scripting",
         "<all_urls>"
     ],
-    "web_accessible_resources": [{
-        "resources": ["content.js"],
-        "matches": ["<all_urls>"]
-    }],
     "action": {},
     "background": {
         "service_worker": "service_worker.js"
