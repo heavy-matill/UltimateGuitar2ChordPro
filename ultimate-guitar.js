@@ -12,7 +12,7 @@ scriptEle.addEventListener("error", (ev) => {
 	console.log("Error on loading file", ev);
 });*/
 
-const html =`
+const html = `
 <dialog>
   <button autofocus>Close</button>
   <p>This modal dialog has a groovy backdrop!</p>
@@ -23,7 +23,7 @@ const html =`
 setTimeout(addButton, 2000);
 setTimeout(convertSong, 2000);
 function showPopover() {
-	
+
 	document.body.insertAdjacentHTML("beforeend", html);
 }
 
@@ -69,15 +69,18 @@ function convertSong() {
 	dictMeta['Last edit on'] = strAuthor[1]
 
 	const keysChordPro = ["title", "sorttitle", "subtitle", "artist", "composer", "lyricist", "copyright", "album", "year", "key", "time", "tempo", "duration", "capo", "meta"]
-	let strMeta = ""
+	let dictMetaOut = {}
 	for (key in dictMeta) {
 		if (keysChordPro.includes(key.toLowerCase()))
-			strMeta += `{${key.toLowerCase()}: ${dictMeta[key]}}\n`
+			dictMetaOut[key.toLowerCase()] = dictMeta[key];
 		else
-			strMeta += `{comment: ${key}: ${dictMeta[key]}}\n`
+			dictMetaOut["comment: " + key] = dictMeta[key];
 	}
-	console.log({ chordSheet, strMeta })
-	const parser = new ChordSheetJS.UltimateGuitarParser();
+
+	chrome.runtime.sendMessage({ chordSheet: chordSheet, ...dictMetaOut }, function (response) {
+		//console.log(response);
+	});
+	/*const parser = new ChordSheetJS.UltimateGuitarParser();
 	const song = parser.parse(chordSheet);
 
 	// set Metadata
@@ -89,7 +92,7 @@ function convertSong() {
 
 	const htmlFormatter = new ChordSheetJS.HtmlTableFormatter();
 	const htmlDisp = htmlFormatter.format(song);
-	console.log(htmlDisp)
+	console.log(htmlDisp)*/
 }
 
 

@@ -19,8 +19,17 @@
         setTimeout(() => { chrome.tabs.create({ url: 'https://chords.menees.com/' }) }, 1000)
     }
 });*/
+chrome.runtime.onMessage.addListener( // this is the message listener
+    async function (request, sender, sendResponse) {
+        await convert(request);
+    }
+);
 
-chrome.action.onClicked.addListener(async () => {
+chrome.action.onClicked.addListener(async () =>
+    convert({ "chordSheet": "elo", "artist": "Suicide Silence", "bpm": "120", "title": "That song!" })
+);
+
+async function convert(dictMessage) {
     let tab
     const localURL = chrome.runtime.getURL("index.html");
     // check if tab exists:
@@ -36,5 +45,5 @@ chrome.action.onClicked.addListener(async () => {
             active: true
         })
     }
-    chrome.tabs.sendMessage(tab.id, { "ug": "elo" });
-});
+    setTimeout(() => chrome.tabs.sendMessage(tab.id, dictMessage), 1000);
+}
