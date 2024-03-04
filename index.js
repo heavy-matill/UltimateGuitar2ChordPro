@@ -147,44 +147,44 @@ const elCPro = document.getElementById('chordpro')
 const elRndr = document.getElementById('render')
 
 function parseUG() {
-        console.log("parseUG")
-        // parse meta
-        let strMeta = ""
-        for (el of elMeta.children) {
-                if (el.children[0]?.checked) {
-                        let key = el.children[1].innerText
-                        let val = el.children[2].value
-                        strMeta = strMeta + `{${key}: ${val}}\n`
-						if (key == "artist") {
-							// also write artist as subtitle
-							strMeta = strMeta + `{subtitle: ${val}}\n`
-						}						
-						if(!key.includes(" ")) {
-							// write as additional meta tag
-							strMeta = strMeta + `{meta: ${key} ${val}}\n`
-						}
-                }
-        }
-        // parse chords and text
-        elSrc.parentNode.dataset.value = elSrc.value
-        let parser = new ChordSheetJS.UltimateGuitarParser();
-        let song = parser.parse(elSrc.value);
-        let formatter = new ChordSheetJS.ChordProFormatter();
-        let chordpro = formatter.format(song);
-        chordpro = strMeta + chordpro;
-        elCPro.value = chordpro;
-        elCPro.parentNode.dataset.value = chordpro
-        renderCP();
+	console.log("parseUG")
+	// parse meta
+	let strMeta = ""
+	for (el of elMeta.children) {			
+		let key = el.children[1].innerText
+		let val = el.children[2].value
+		if (el.children[0]?.checked) {
+			strMeta = strMeta + `{${key}: ${val}}\n`
+			if (key == "artist") {
+				// also write artist as subtitle
+				strMeta = strMeta + `{subtitle: ${val}}\n`
+			}
+		}										
+		if(!key.includes(" ")) {
+			// write as additional meta tag
+			strMeta = strMeta + `{meta: ${key} ${val}}\n`
+			}
+	}
+	// parse chords and text
+	elSrc.parentNode.dataset.value = elSrc.value
+	let parser = new ChordSheetJS.UltimateGuitarParser();
+	let song = parser.parse(elSrc.value);
+	let formatter = new ChordSheetJS.ChordProFormatter();
+	let chordpro = formatter.format(song);
+	chordpro = strMeta + chordpro;
+	elCPro.value = chordpro;
+	elCPro.parentNode.dataset.value = chordpro
+	renderCP();
 }
 elSrc.addEventListener('input', parseUG)
 
 function renderCP() {
-        console.log("renderCP")
-        let parser = new ChordSheetJS.ChordProParser();
-        let song = parser.parse(elCPro.value.replaceAll('\\', '\\\\'));
-        let htmlFormatter = new ChordSheetJS.HtmlTableFormatter();
-        let html = htmlFormatter.format(song);
-        elRndr.innerHTML = html;
+	console.log("renderCP")
+	let parser = new ChordSheetJS.ChordProParser();
+	let song = parser.parse(elCPro.value.replaceAll('\\', '\\\\'));
+	let htmlFormatter = new ChordSheetJS.HtmlTableFormatter();
+	let html = htmlFormatter.format(song);
+	elRndr.innerHTML = html;
 }
 elCPro.addEventListener('input', renderCP)
 
@@ -215,20 +215,20 @@ function addMetaField(elParent, key, value) {
 }
 
 chrome.runtime.onMessage.addListener(
-        function (request, sender, sendResponse) {
-                console.log(request);
-                elMeta.innerHTML = ""
-                for (key in request) {
-                        if (key != "chordSheet") {
-							if (typeof value === "string") {
-								addMetaField(elMeta, key, value)
-							} else {
-								for (val of value)
-									addMetaField(elMeta, key, val)
-							}
-                        }
-                }
-                elSrc.value = request.chordSheet ?? ""
-                parseUG();
-        }
+	function (request, sender, sendResponse) {
+		console.log(request);
+		elMeta.innerHTML = ""
+		for (key in request) {
+			if (key != "chordSheet") {
+				if (typeof value === "string") {
+					addMetaField(elMeta, key, value)
+				} else {
+					for (val of value)
+						addMetaField(elMeta, key, val)
+				}
+			}
+		}
+		elSrc.value = request.chordSheet ?? ""
+		parseUG();
+	}
 );
