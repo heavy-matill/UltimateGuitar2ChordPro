@@ -194,9 +194,30 @@ elSrc.addEventListener('input', parseUG)
 function renderCP() {
         console.log("renderCP")
         let parser = new ChordSheetJS.ChordProParser();
-        let song = parser.parse(elCPro.value.replaceAll('\\', '\\\\'));
+        let strCP = elCPro.value.replaceAll('\\', '\\\\')
+        let song = parser.parse(strCP);
         let htmlFormatter = new ChordSheetJS.HtmlTableFormatter();
         let html = htmlFormatter.format(song);
+        // render meta table
+        let elDivMeta = document.getElementById("renderMeta")
+        elDivMeta.innerHTML = ""
+        let elHMeta = document.createElement("h5")
+        elHMeta.innerHTML = "Metadata"
+        elDivMeta.appendChild(elHMeta)
+        for (match of Array.from(strCP.matchAll(/^{meta:\s*([^\s]*)\s*([^}]*)/gm))) {
+                console.log({ match })
+                let elDivRow = document.createElement("div")
+                let elKey = document.createElement("label")
+                elKey.classList = "col-3"
+                elKey.innerHTML = match[1]
+                let elVal = document.createElement("label")
+                elVal.classList = "col-9"
+                elVal.innerHTML = match[2]
+                elDivRow.appendChild(elKey)
+                elDivRow.appendChild(elVal)
+                elDivMeta.appendChild(elDivRow)
+        }
+        elDivMeta.innerHTML = elDivMeta.outerHTML
         elRndr.innerHTML = html;
 }
 elCPro.addEventListener('input', renderCP)
@@ -211,19 +232,20 @@ parseUG();
   });*/
 function addMetaField(elParent, key, value) {
         let elDiv = document.createElement("div")
+        elDiv.classList = "row"
         let elChk = document.createElement("input")
         elChk.type = "checkbox"
-        elChk.class = "col-1"
+        elChk.classList = "col-1"
         elChk.addEventListener('change', parseUG)
         console.log(key)
         elChk.checked = !(key.startsWith("comment: ") || key.startsWith("c: "))
         let elLab = document.createElement("label")
         elLab.innerText = key
-        elLab.class = "col-3"
+        elLab.classList = "col-3"
         let elVal = document.createElement("input")
         elVal.type = "text"
-        elVal.value = request[key]
-        elLab.class = "col-8"
+        elVal.value = value
+        elVal.classList = "col-8"
         elVal.addEventListener('input', parseUG)
         for (el of [elChk, elLab, elVal])
                 elDiv.appendChild(el)
@@ -236,6 +258,7 @@ chrome.runtime.onMessage.addListener(
                 elMeta.innerHTML = ""
                 for (key in request) {
                         if (key != "chordSheet") {
+                                let value = request[key]
                                 if (typeof value === "string") {
                                         addMetaField(elMeta, key, value)
                                 } else {
