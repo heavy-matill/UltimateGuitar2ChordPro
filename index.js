@@ -147,49 +147,57 @@ const elCPro = document.getElementById('chordpro')
 const elRndr = document.getElementById('render')
 
 function parseUG() {
-	console.log("parseUG")
-	// parse meta
-	let strMeta = ""
-	for (el of elMeta.children) {
-		let key = el.children[1].innerText
-		let val = el.children[2].value
-		if (el.children[0]?.checked) {
-			strMeta = strMeta + `{${key}: ${val}}\n`
-			if (key != "title" && !key.startsWith("c") && !key.startsWith("comment")) {
-				if (key == "artist") {
-					// write artist as subtitle
-					strMeta = strMeta + `{subtitle: ${val}}\n`
-				} else {
-					// write as comment so its visible
-					strMeta = strMeta + `{c: ${key}: ${val}}\n`
-				}
-			}
-		}
-		if (!key.includes(" ")) {
-			// write as additional meta tag
-			strMeta = strMeta + `{meta: ${key} ${val}}\n`
-		}
-	}
-	// parse chords and text
-	elSrc.parentNode.dataset.value = elSrc.value
-	let parser = new ChordSheetJS.UltimateGuitarParser();
-	let song = parser.parse(elSrc.value);
-	let formatter = new ChordSheetJS.ChordProFormatter();
-	let chordpro = formatter.format(song);
-	chordpro = strMeta + chordpro;
-	elCPro.value = chordpro;
-	elCPro.parentNode.dataset.value = chordpro
-	renderCP();
+        console.log("parseUG")
+        // parse meta
+        let strMeta = ""
+        let title = ""
+        for (el of elMeta.children) {
+                let key = el.children[1].innerText
+                let val = el.children[2].value
+                if (el.children[0]?.checked) {
+                        strMeta = strMeta + `{${key}: ${val}}\n`
+                        if (key != "title" && !key.startsWith("c") && !key.startsWith("comment")) {
+                                if (key == "artist") {
+                                        // write artist as subtitle
+                                        strMeta = strMeta + `{subtitle: ${val}}\n`
+                                } else {
+                                        // write as comment so its visible
+                                        strMeta = strMeta + `{c: ${key}: ${val}}\n`
+                                }
+                        }
+                        if (key == "title")
+                                title = val
+                }
+                if (!key.includes(" ")) {
+                        // write as additional meta tag
+                        strMeta = strMeta + `{meta: ${key} ${val}}\n`
+                }
+        }
+        let parser = new ChordSheetJS.UltimateGuitarParser();
+        let songSrc = elSrc.value
+        // preprocess
+        // remove first line if its the title
+        if (title.length)
+                songSrc.replace(new RegExp(`^[^\n]*(${title})[^\n]*$\n`, 'gm'), "");
+        let song = parser.parse(elSrc.value);
+        let formatter = new ChordSheetJS.ChordProFormatter();
+        let chordpro = formatter.format(song);
+        chordpro = strMeta + chordpro;
+        elCPro.value = chordpro;
+        // for full size styled textarea
+        elSrc.parentNode.dataset.value = elSrc.value
+        elCPro.parentNode.dataset.value = chordpro
+        renderCP();
 }
 elSrc.addEventListener('input', parseUG)
 
 function renderCP() {
-	console.log("renderCP")
-	let parser = new ChordSheetJS.ChordProParser();
-	let song = parser.parse(elCPro.value.replaceAll('\\', '\\\\'));
-	let htmlFormatter = new ChordSheetJS.HtmlTableFormatter();
-	let html = htmlFormatter.format(song);
-	elRndr.innerHTML = html;
+        console.log("renderCP")
+        let parser = new ChordSheetJS.ChordProParser();
+        let song = parser.parse(elCPro.value.replaceAll('\\', '\\\\'));
+        let htmlFormatter = new ChordSheetJS.HtmlTableFormatter();
+        let html = htmlFormatter.format(song);
+        elRndr.innerHTML = html;
 }
 elCPro.addEventListener('input', renderCP)
 
@@ -197,46 +205,46 @@ elSrc.value = ug;
 parseUG();
 
 /*browser.runtime.onMessage.addListener((request) => {
-	console.log("Message from the background script:");
-	console.log(request.greeting);
-	return Promise.resolve({ response: "Hi from content script" });
+        console.log("Message from the background script:");
+        console.log(request.greeting);
+        return Promise.resolve({ response: "Hi from content script" });
   });*/
 function addMetaField(elParent, key, value) {
-	let elDiv = document.createElement("div")
-	let elChk = document.createElement("input")
-	elChk.type = "checkbox"
-	elChk.class = "col-1"
-	elChk.addEventListener('change', parseUG)
-	console.log(key)
-	elChk.checked = !(key.startsWith("comment: ") || key.startsWith("c: "))
-	let elLab = document.createElement("label")
-	elLab.innerText = key
-	elLab.class = "col-3"
-	let elVal = document.createElement("input")
-	elVal.type = "text"
-	elVal.value = request[key]
-	elLab.class = "col-8"
-	elVal.addEventListener('input', parseUG)
-	for (el of [elChk, elLab, elVal])
-		elDiv.appendChild(el)
-	elParent.appendChild(elDiv)
+        let elDiv = document.createElement("div")
+        let elChk = document.createElement("input")
+        elChk.type = "checkbox"
+        elChk.class = "col-1"
+        elChk.addEventListener('change', parseUG)
+        console.log(key)
+        elChk.checked = !(key.startsWith("comment: ") || key.startsWith("c: "))
+        let elLab = document.createElement("label")
+        elLab.innerText = key
+        elLab.class = "col-3"
+        let elVal = document.createElement("input")
+        elVal.type = "text"
+        elVal.value = request[key]
+        elLab.class = "col-8"
+        elVal.addEventListener('input', parseUG)
+        for (el of [elChk, elLab, elVal])
+                elDiv.appendChild(el)
+        elParent.appendChild(elDiv)
 }
 
 chrome.runtime.onMessage.addListener(
-	function (request, sender, sendResponse) {
-		console.log(request);
-		elMeta.innerHTML = ""
-		for (key in request) {
-			if (key != "chordSheet") {
-				if (typeof value === "string") {
-					addMetaField(elMeta, key, value)
-				} else {
-					for (val of value)
-						addMetaField(elMeta, key, val)
-				}
-			}
-		}
-		elSrc.value = request.chordSheet ?? ""
-		parseUG();
-	}
+        function (request, sender, sendResponse) {
+                console.log(request);
+                elMeta.innerHTML = ""
+                for (key in request) {
+                        if (key != "chordSheet") {
+                                if (typeof value === "string") {
+                                        addMetaField(elMeta, key, value)
+                                } else {
+                                        for (val of value)
+                                                addMetaField(elMeta, key, val)
+                                }
+                        }
+                }
+                elSrc.value = request.chordSheet ?? ""
+                parseUG();
+        }
 );
