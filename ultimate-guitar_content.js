@@ -38,19 +38,22 @@ function addButton() {
 }
 
 function convertSong() {
+	let dictMeta = {}
 
 	let chordsEle = document.getElementsByTagName('aside')[0].nextSibling
 	if (chordsEle.innerText.startsWith('CHORDS'))
 		chordsEle = chordsEle.nextSibling;
 	if (chordsEle.innerText.startsWith('STRUMMING')) {
+		// get tempos if any available
+		let uniqueTempos = Array.from(new Set(Array.from(chordsEle.innerText.matchAll(/([0-9.]*)(?:\sbpm)/g)).map(m => m[1])))
+		if (uniqueTempos.length)
+			dictMeta['tempo'] = uniqueTempos.join(", ")
 		chordsEle = chordsEle.nextSibling;
-		// get tempo? -> dictMeta
 	}
 
 	let chordSheet = chordsEle.innerText.slice(0, -1).replaceAll('\n\n', '\n');
 
 	// get metadata
-	let dictMeta = {}
 	const titleEle = document.getElementsByTagName('h1')[0]
 	dictMeta['title'] = titleEle.innerText.split(' ').slice(0, -1).join(' ')
 	const artistEle = titleEle.nextElementSibling
@@ -66,7 +69,20 @@ function convertSong() {
 	const authorEle = tableEle.parentElement.nextSibling
 	const strAuthor = authorEle.innerText.split('. Last edit on ')
 	dictMeta['Author'] = strAuthor[0].replace(/^Author/, '')
-	dictMeta['Last edit on'] = strAuthor[1]
+	if (strAuthor[1].endsWith('ago')) {
+		let matches = strAuthor[1].match(/([0-9]*)\s([a-z]*)\s/);
+		let numTime = Number(matches[1])
+		let date = new Date()
+		if(matches[2].startsWith('minute'))
+			date.setMinutes(date.getMinutes() - numTime)
+		else if(matches[2].startsWith('hour'))
+			date.setHours(date.getHours() - numTime)
+		else if(matches[2].startsWith('day'))
+			date.setHours(date.getHours() - numTime*24)
+		dictMeta['Last edit on'] = new Date(date).toISOString().split('T')[0]		
+	} else {
+		dictMeta['Last edit on'] = new Date(strAuthor[1]).toISOString().split('T')[0]
+	}
 
 	const keysChordPro = ["title", "sorttitle", "subtitle", "artist", "composer", "lyricist", "copyright", "album", "year", "key", "time", "tempo", "duration", "capo", "meta"]
 	let dictMetaOut = {}
@@ -94,8 +110,3 @@ function convertSong() {
 	const htmlDisp = htmlFormatter.format(song);
 	console.log(htmlDisp)*/
 }
-
-
-/*https://chords.menees.com/
-const inputEl = document.getElementsByTagName('textarea')[0]
-inputEl.dispatchEvent(new Event('input', { bubbles: true }));*/

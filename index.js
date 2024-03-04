@@ -150,20 +150,25 @@ function parseUG() {
 	console.log("parseUG")
 	// parse meta
 	let strMeta = ""
-	for (el of elMeta.children) {			
+	for (el of elMeta.children) {
 		let key = el.children[1].innerText
 		let val = el.children[2].value
 		if (el.children[0]?.checked) {
 			strMeta = strMeta + `{${key}: ${val}}\n`
-			if (key == "artist") {
-				// also write artist as subtitle
-				strMeta = strMeta + `{subtitle: ${val}}\n`
+			if (key != "title" && !key.startsWith("c") && !key.startsWith("comment")) {
+				if (key == "artist") {
+					// write artist as subtitle
+					strMeta = strMeta + `{subtitle: ${val}}\n`
+				} else {
+					// write as comment so its visible
+					strMeta = strMeta + `{c: ${key}: ${val}}\n`
+				}
 			}
-		}										
-		if(!key.includes(" ")) {
+		}
+		if (!key.includes(" ")) {
 			// write as additional meta tag
 			strMeta = strMeta + `{meta: ${key} ${val}}\n`
-			}
+		}
 	}
 	// parse chords and text
 	elSrc.parentNode.dataset.value = elSrc.value
@@ -192,9 +197,9 @@ elSrc.value = ug;
 parseUG();
 
 /*browser.runtime.onMessage.addListener((request) => {
-    console.log("Message from the background script:");
-    console.log(request.greeting);
-    return Promise.resolve({ response: "Hi from content script" });
+	console.log("Message from the background script:");
+	console.log(request.greeting);
+	return Promise.resolve({ response: "Hi from content script" });
   });*/
 function addMetaField(elParent, key, value) {
 	let elDiv = document.createElement("div")
@@ -210,8 +215,8 @@ function addMetaField(elParent, key, value) {
 	elVal.value = request[key]
 	elVal.addEventListener('input', parseUG)
 	for (el of [elChk, elLab, elVal])
-			elDiv.appendChild(el)
-	elParent.appendChild(elDiv)	
+		elDiv.appendChild(el)
+	elParent.appendChild(elDiv)
 }
 
 chrome.runtime.onMessage.addListener(
