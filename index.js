@@ -155,6 +155,14 @@ function parseUG() {
                         let key = el.children[1].innerText
                         let val = el.children[2].value
                         strMeta = strMeta + `{${key}: ${val}}\n`
+						if (key == "artist") {
+							// also write artist as subtitle
+							strMeta = strMeta + `{subtitle: ${val}}\n`
+						}						
+						if(!key.includes(" ")) {
+							// write as additional meta tag
+							strMeta = strMeta + `{meta: ${key} ${val}}\n`
+						}
                 }
         }
         // parse chords and text
@@ -188,6 +196,23 @@ parseUG();
     console.log(request.greeting);
     return Promise.resolve({ response: "Hi from content script" });
   });*/
+function addMetaField(elParent, key, value) {
+	let elDiv = document.createElement("div")
+	let elChk = document.createElement("input")
+	elChk.type = "checkbox"
+	elChk.addEventListener('change', parseUG)
+	console.log(key)
+	elChk.checked = !(key.startsWith("comment: ") || key.startsWith("c: "))
+	let elLab = document.createElement("label")
+	elLab.innerText = key
+	let elVal = document.createElement("input")
+	elVal.type = "text"
+	elVal.value = request[key]
+	elVal.addEventListener('input', parseUG)
+	for (el of [elChk, elLab, elVal])
+			elDiv.appendChild(el)
+	elParent.appendChild(elDiv)	
+}
 
 chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
@@ -195,21 +220,12 @@ chrome.runtime.onMessage.addListener(
                 elMeta.innerHTML = ""
                 for (key in request) {
                         if (key != "chordSheet") {
-                                let elDiv = document.createElement("div")
-                                let elChk = document.createElement("input")
-                                elChk.type = "checkbox"
-                                elChk.addEventListener('change', parseUG)
-                                console.log(key)
-                                elChk.checked = !key.startsWith("comment: ")
-                                let elLab = document.createElement("label")
-                                elLab.innerText = key
-                                let elVal = document.createElement("input")
-                                elVal.type = "text"
-                                elVal.value = request[key]
-                                elVal.addEventListener('input', parseUG)
-                                for (el of [elChk, elLab, elVal])
-                                        elDiv.appendChild(el)
-                                elMeta.appendChild(elDiv)
+							if (typeof value === "string") {
+								addMetaField(elMeta, key, value)
+							} else {
+								for (val of value)
+									addMetaField(elMeta, key, val)
+							}
                         }
                 }
                 elSrc.value = request.chordSheet ?? ""

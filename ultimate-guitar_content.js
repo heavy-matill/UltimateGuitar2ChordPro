@@ -54,7 +54,7 @@ function convertSong() {
 	const titleEle = document.getElementsByTagName('h1')[0]
 	dictMeta['title'] = titleEle.innerText.split(' ').slice(0, -1).join(' ')
 	const artistEle = titleEle.nextElementSibling
-	dictMeta['artist'] = artistEle.innerText
+	dictMeta['artist'] = Array.from(artistEle.getElementsByTagName("a")).map(el => el.innerText)
 
 	// get more metadata
 	const tableEle = document.getElementsByTagName('table')[0]
@@ -74,7 +74,7 @@ function convertSong() {
 		if (keysChordPro.includes(key.toLowerCase()))
 			dictMetaOut[key.toLowerCase()] = dictMeta[key];
 		else
-			dictMetaOut["comment: " + key] = dictMeta[key];
+			dictMetaOut["c: " + key] = dictMeta[key];
 	}
 
 	chrome.runtime.sendMessage({ chordSheet: chordSheet, ...dictMetaOut }, function (response) {
