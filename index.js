@@ -205,14 +205,17 @@ function addMetaField(elParent, key, value) {
 	let elDiv = document.createElement("div")
 	let elChk = document.createElement("input")
 	elChk.type = "checkbox"
+	elChk.class = "col-1"
 	elChk.addEventListener('change', parseUG)
 	console.log(key)
 	elChk.checked = !(key.startsWith("comment: ") || key.startsWith("c: "))
 	let elLab = document.createElement("label")
 	elLab.innerText = key
+	elLab.class = "col-3"
 	let elVal = document.createElement("input")
 	elVal.type = "text"
 	elVal.value = request[key]
+	elLab.class = "col-8"
 	elVal.addEventListener('input', parseUG)
 	for (el of [elChk, elLab, elVal])
 		elDiv.appendChild(el)
