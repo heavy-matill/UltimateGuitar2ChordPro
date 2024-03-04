@@ -4,3 +4,7 @@
 #render>*{
   white-space: nowrap;
 }
+.chord {
+  font-weight: bold;
+  color: blue;
+}
