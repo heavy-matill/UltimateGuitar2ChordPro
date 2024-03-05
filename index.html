@@ -24,18 +24,27 @@
     <div class="row flex-grow-1 overflow-hidden">
       <div class="col-12 col-lg-6 col-xxl-4 mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
         <h2 class="row flex-shrink-1">Ultimate-Guitar</h2>
-        <div id="meta">
-          <div>
-            <input class="col" type="checkbox" checked="true"></input>
-            <label class="col-3">artist</label>
-            <input class="col-8" type="text" value="Metallica"></input>
-          </div>
-          <div>
-            <input class="col" type="checkbox" checked="true"></input>
-            <label class="col-3">title</label>
-            <input class="col-8" type="text" value="Yeah yeah!"></input>
-          </div>
-        </div>
+        <table class="table">
+		<thead>
+			<tr>
+			<th scope="col">Use</th>
+			<th scope="col">Key</th>
+			<th scope="col">Value</th>
+			</tr>
+		</thead>
+		<tbody id="meta">
+          <tr>
+            <th><input type="checkbox" checked="true"></input></th>
+            <th>artist</th>
+            <td><input type="text" value="Metallica"></input><td>
+          </tr>
+          <tr>
+            <th><input type="checkbox" checked="true"></input></th>
+            <th>title</th>
+            <td><input type="text" value="Yeah yeah!"></input><td>
+          </tr>
+        </tbody>
+		</table>
         <label class="input-sizer stacked">
           <textarea id="source" oninput="this.parentNode.dataset.value = this.value" rows="1"
             placeholder="hi"></textarea>
@@ -50,7 +59,14 @@
       </div>
       <div class="col-12 col-xxl-4 mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
         <h2>Rendered</h2>
-        <div id="renderMeta"></div>
+        <table class="table">
+			<thead><tr>
+			<th scope="col">Key</th>
+			<th scope="col">Metadata</th></tr>
+			</thead>
+			<tbody  id="renderMeta" >
+			</tbody>
+		</table>
         <div class="overflow-hidden" id="render">
           replace me
         </div>

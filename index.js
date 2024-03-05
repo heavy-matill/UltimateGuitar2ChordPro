@@ -199,25 +199,20 @@ function renderCP() {
         let htmlFormatter = new ChordSheetJS.HtmlTableFormatter();
         let html = htmlFormatter.format(song);
         // render meta table
-        let elDivMeta = document.getElementById("renderMeta")
-        elDivMeta.innerHTML = ""
-        let elHMeta = document.createElement("h5")
-        elHMeta.innerHTML = "Metadata"
-        elDivMeta.appendChild(elHMeta)
+        let elTBody = document.getElementById("renderMeta")
+        elTBody.innerHTML = ""
         for (match of Array.from(strCP.matchAll(/^{meta:\s*([^\s]*)\s*([^}]*)/gm))) {
                 console.log({ match })
-                let elDivRow = document.createElement("div")
-                let elKey = document.createElement("label")
-                elKey.classList = "col-3"
+                let elTRow = document.createElement("tr")
+                let elKey = document.createElement("th")
+                elKey.setAttribute("scope", "row")
                 elKey.innerHTML = match[1]
-                let elVal = document.createElement("label")
-                elVal.classList = "col-9"
+                let elVal = document.createElement("td")
                 elVal.innerHTML = match[2]
-                elDivRow.appendChild(elKey)
-                elDivRow.appendChild(elVal)
-                elDivMeta.appendChild(elDivRow)
+                elTRow.appendChild(elKey)
+                elTRow.appendChild(elVal)
+                elTBody.appendChild(elTRow)
         }
-        elDivMeta.innerHTML = elDivMeta.outerHTML
         elRndr.innerHTML = html;
 }
 elCPro.addEventListener('input', renderCP)
@@ -231,25 +226,25 @@ parseUG();
         return Promise.resolve({ response: "Hi from content script" });
   });*/
 function addMetaField(elParent, key, value) {
-        let elDiv = document.createElement("div")
-        elDiv.classList = "row"
+        let elRow = document.createElement("tr")
+        let elChkT = document.createElement("th")
         let elChk = document.createElement("input")
         elChk.type = "checkbox"
-        elChk.classList = "col-1"
         elChk.addEventListener('change', parseUG)
-        console.log(key)
+        elChkT.appendChild(elChk)
         elChk.checked = !(key.startsWith("comment: ") || key.startsWith("c: "))
-        let elLab = document.createElement("label")
-        elLab.innerText = key
-        elLab.classList = "col-3"
+        let elLabT = document.createElement("th")
+        elLabT.innerText = key
+        let elValT = document.createElement("tr")
         let elVal = document.createElement("input")
         elVal.type = "text"
         elVal.value = value
-        elVal.classList = "col-8"
+        elVal.style = "width: 100%;"
+        elValT.appendChild(elVal)
         elVal.addEventListener('input', parseUG)
-        for (el of [elChk, elLab, elVal])
-                elDiv.appendChild(el)
-        elParent.appendChild(elDiv)
+        for (el of [elChkT, elLabT, elValT])
+                elRow.appendChild(el)
+        elParent.appendChild(elRow)
 }
 
 chrome.runtime.onMessage.addListener(
