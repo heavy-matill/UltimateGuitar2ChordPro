@@ -21,7 +21,7 @@ const html = `
 `
 
 setTimeout(addButton, 2000);
-setTimeout(convertSong, 2000);
+
 function showPopover() {
 
 	document.body.insertAdjacentHTML("beforeend", html);
