@@ -140,59 +140,75 @@ Em
 
 **************************
 `
-
 const elMeta = document.getElementById("meta")
 const elSrc = document.getElementById('source')
 const elCPro = document.getElementById('chordpro')
 const elRndr = document.getElementById('render')
+const elErr = document.getElementById("error")
+const elBtDown = document.getElementById("download")
+
+elBtDown.addEventListener("click", downloadChordPro)
+let title = ""
+let artist = ""
 
 function parseUG() {
-        console.log("parseUG")
-        // parse meta
-        let strMeta = ""
-        let title = ""
-        for (el of elMeta.children) {
-                let key = el.children[1].innerText
-                let val = el.children[2].value
-                if (el.children[0]?.checked) {
-                        strMeta = strMeta + `{${key}: ${val}}\n`
-                        if (key != "title" && !key.startsWith("c") && !key.startsWith("comment")) {
-                                if (key == "artist") {
-                                        // write artist as subtitle
-                                        strMeta = strMeta + `{subtitle: ${val}}\n`
-                                } else {
-                                        // write as comment so its visible
-                                        strMeta = strMeta + `{c: ${key}: ${val}}\n`
+        try {
+                // parse meta
+                let strMeta = ""
+                title = ""
+                artist = ""
+                for (el of elMeta.children) {
+                        let key = el.children[1].innerText
+                        let val = el.children[2].children[0].value
+                        if (el.children[0].children[0].checked) {
+                                console.log({ key, val })
+                                strMeta = strMeta + `{${key}: ${val}}\n`
+                                if (key != "title" && !key.startsWith("c") && !key.startsWith("comment")) {
+                                        if (key == "artist") {
+                                                if(!artist.length)
+                                                        artist = val
+                                                // write artist as subtitle
+                                                strMeta = strMeta + `{subtitle: ${val}}\n`
+                                        } else {
+                                                // write as comment so its visible
+                                                strMeta = strMeta + `{c: ${key}: ${val}}\n`
+                                        }
                                 }
+                                if (key == "title")
+                                        title = val
                         }
-                        if (key == "title")
-                                title = val
+                        if (!key.includes(" ")) {
+                                // write as additional meta tag
+                                strMeta = strMeta + `{meta: ${key} ${val}}\n`
+                        }
                 }
-                if (!key.includes(" ")) {
-                        // write as additional meta tag
-                        strMeta = strMeta + `{meta: ${key} ${val}}\n`
+                let parser = new ChordSheetJS.UltimateGuitarParser();
+                let songSrc = elSrc.value
+                // preprocess
+                // remove first line if its the title
+                if (title.length)
+                        songSrc.replace(new RegExp(`^[^\n]*(${title})[^\n]*$\n`, 'gm'), "");
+                let song = parser.parse(elSrc.value);
+                let formatter = new ChordSheetJS.ChordProFormatter();
+                let chordpro = formatter.format(song);
+                chordpro = strMeta + chordpro;
+                elCPro.value = chordpro;
+                // for full size styled textarea
+                elSrc.parentNode.dataset.value = elSrc.value
+                elCPro.parentNode.dataset.value = chordpro
+                renderCP();
+                if (elErr.children.length) {
+                        new bootstrap.Alert(elErr.children[0]).close()
                 }
+                elBtDown.removeAttribute("disabled")
+        } catch (e) {
+                elBtDown.setAttribute("disabled", true)
+                elErr.innerHTML = alertHTML(e)
         }
-        let parser = new ChordSheetJS.UltimateGuitarParser();
-        let songSrc = elSrc.value
-        // preprocess
-        // remove first line if its the title
-        if (title.length)
-                songSrc.replace(new RegExp(`^[^\n]*(${title})[^\n]*$\n`, 'gm'), "");
-        let song = parser.parse(elSrc.value);
-        let formatter = new ChordSheetJS.ChordProFormatter();
-        let chordpro = formatter.format(song);
-        chordpro = strMeta + chordpro;
-        elCPro.value = chordpro;
-        // for full size styled textarea
-        elSrc.parentNode.dataset.value = elSrc.value
-        elCPro.parentNode.dataset.value = chordpro
-        renderCP();
 }
 elSrc.addEventListener('input', parseUG)
 
 function renderCP() {
-        console.log("renderCP")
         let parser = new ChordSheetJS.ChordProParser();
         let strCP = elCPro.value.replaceAll('\\', '\\\\')
         let song = parser.parse(strCP);
@@ -266,3 +282,34 @@ chrome.runtime.onMessage.addListener(
                 parseUG();
         }
 );
+
+function downloadChordPro() {
+        let strCP = elCPro.value.replaceAll('\\', '\\\\')
+        let filename = artist + (artist.length?" - ":"") + title
+        filename = (filename.length?filename:'ChordProSheet') + '.cho'
+        download(filename, strCP)
+}
+
+function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+}
+
+function alertHTML(msg) {
+        return `
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+        <div>
+          ${msg}
+        </div>
+      </div>
+        `
+}
