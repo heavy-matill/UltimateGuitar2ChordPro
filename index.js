@@ -150,6 +150,7 @@ const elBtDown = document.getElementById("download")
 elBtDown.addEventListener("click", downloadChordPro)
 let title = ""
 let artist = ""
+const metaKeys = ["title", "sorttitle", "subtitle", "artist", "composer", "lyricist", "copyright", "album", "year", "key", "time", "tempo", "duration", "capo", "meta"]
 
 function parseUG() {
         try {
@@ -158,43 +159,43 @@ function parseUG() {
                 title = ""
                 artist = ""
                 for (el of elMeta.children) {
-                        let key = el.children[1].innerText
-                        let val = el.children[2].children[0].value
+                        let key = el.children[2].innerText
+                        let val = el.children[3].children[0].value
                         if (el.children[0].children[0].checked) {
-                                console.log({ key, val })
-                                strMeta = strMeta + `{${key}: ${val}}\n`
-                                if (key != "title" && !key.startsWith("c") && !key.startsWith("comment")) {
-                                        if (key == "artist") {
-                                                if(!artist.length)
-                                                        artist = val
-                                                // write artist as subtitle
-                                                strMeta = strMeta + `{subtitle: ${val}}\n`
-                                        } else {
-                                                // write as comment so its visible
-                                                strMeta = strMeta + `{c: ${key}: ${val}}\n`
-                                        }
+                                if (metaKeys.includes(key) || key.startsWith("c") || key.startsWith("comment")) {
+                                        // write existing directive
+                                        strMeta = strMeta + `{${key}: ${val}}\n`
+                                        if (key == "artist" && !artist.length)
+                                                artist = val
+                                        if (key == "title")
+                                                title = val
+                                } else {
+                                        // write as meta so its visible
+                                        strMeta = strMeta + `{meta: ${key} ${val}}\n`
                                 }
-                                if (key == "title")
-                                        title = val
                         }
-                        if (!key.includes(" ")) {
-                                // write as additional meta tag
-                                strMeta = strMeta + `{meta: ${key} ${val}}\n`
+                        if (el.children[1].children[0].checked) {
+                                // print as comment
+                                strMeta = strMeta + `{c: ${key}: ${val}}\n`
                         }
                 }
                 let parser = new ChordSheetJS.UltimateGuitarParser();
-                let songSrc = elSrc.value
                 // preprocess
+                let songSrc = elSrc.value
                 // remove first line if its the title
                 if (title.length)
-                        songSrc.replace(new RegExp(`^[^\n]*(${title})[^\n]*$\n`, 'gm'), "");
-                let song = parser.parse(elSrc.value);
+                        songSrc = songSrc.replace(new RegExp(`^[^\\n]*(${title})[^\\n]*\\n`, 'g'), "");
+                if (artist.length)
+                        songSrc = songSrc.replace(new RegExp(`^[^\\n]*(${artist})[^\\n]*\\n`, 'g'), "");
+                songSrc.value = songSrc
+
+                let song = parser.parse(songSrc);
                 let formatter = new ChordSheetJS.ChordProFormatter();
                 let chordpro = formatter.format(song);
                 chordpro = strMeta + chordpro;
                 elCPro.value = chordpro;
                 // for full size styled textarea
-                elSrc.parentNode.dataset.value = elSrc.value
+                elSrc.parentNode.dataset.value = songSrc
                 elCPro.parentNode.dataset.value = chordpro
                 renderCP();
                 if (elErr.children.length) {
@@ -217,14 +218,14 @@ function renderCP() {
         // render meta table
         let elTBody = document.getElementById("renderMeta")
         elTBody.innerHTML = ""
-        for (match of Array.from(strCP.matchAll(/^{meta:\s*([^\s]*)\s*([^}]*)/gm))) {
-                console.log({ match })
+        const re = new RegExp(`^{((${metaKeys.join(')|(')})):\\s*(.*)}$`, 'gm')
+        for (match of Array.from(strCP.matchAll(re))) {
                 let elTRow = document.createElement("tr")
                 let elKey = document.createElement("th")
                 elKey.setAttribute("scope", "row")
                 elKey.innerHTML = match[1]
                 let elVal = document.createElement("td")
-                elVal.innerHTML = match[2]
+                elVal.innerHTML = match.slice(-1)[0]
                 elTRow.appendChild(elKey)
                 elTRow.appendChild(elVal)
                 elTBody.appendChild(elTRow)
@@ -242,13 +243,24 @@ parseUG();
         return Promise.resolve({ response: "Hi from content script" });
   });*/
 function addMetaField(elParent, key, value) {
+        const isComment = (key.startsWith("comment: ") || key.startsWith("c: "))
         let elRow = document.createElement("tr")
         let elChkT = document.createElement("th")
         let elChk = document.createElement("input")
         elChk.type = "checkbox"
+        elChk.checked = !isComment
         elChk.addEventListener('change', parseUG)
         elChkT.appendChild(elChk)
-        elChk.checked = !(key.startsWith("comment: ") || key.startsWith("c: "))
+
+        let elChkT2 = document.createElement("th")
+        let elChk2 = document.createElement("input")
+        elChk2.type = "checkbox"
+        elChk2.checked = false
+        if (isComment)
+                elChk2.setAttribute("disabled", true)
+        elChk2.addEventListener('change', parseUG)
+        elChkT2.appendChild(elChk2)
+
         let elLabT = document.createElement("th")
         elLabT.innerText = key
         let elValT = document.createElement("tr")
@@ -258,14 +270,13 @@ function addMetaField(elParent, key, value) {
         elVal.style = "width: 100%;"
         elValT.appendChild(elVal)
         elVal.addEventListener('input', parseUG)
-        for (el of [elChkT, elLabT, elValT])
+        for (el of [elChkT, elChkT2, elLabT, elValT])
                 elRow.appendChild(el)
         elParent.appendChild(elRow)
 }
 
 chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
-                console.log(request);
                 elMeta.innerHTML = ""
                 for (key in request) {
                         if (key != "chordSheet") {
@@ -285,8 +296,8 @@ chrome.runtime.onMessage.addListener(
 
 function downloadChordPro() {
         let strCP = elCPro.value.replaceAll('\\', '\\\\')
-        let filename = artist + (artist.length?" - ":"") + title
-        filename = (filename.length?filename:'ChordProSheet') + '.cho'
+        let filename = artist + (artist.length ? " - " : "") + title
+        filename = (filename.length ? filename : 'ChordProSheet') + '.cho'
         download(filename, strCP)
 }
 
