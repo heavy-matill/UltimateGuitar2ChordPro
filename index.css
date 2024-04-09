@@ -11,41 +11,108 @@ textarea {
   font-family: monospace;
 }
 
+.tab-button-col {
+  width: 50px !important;
+}
+
+.tab-button-col>button {
+  width: 100%;
+  height: 100%
+}
+
+.tab-button-col>button>h2 {
+  transform-origin: 0 0;
+  transform: rotate(270deg);
+  right: 0;
+  white-space: nowrap;
+  direction: rtl;
+  pointer-events: none;
+}
+
+
+.tab-col {
+  height: 100%;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  right: 0;
+  position: relative;
+}
+
+@media only screen and (max-width: 768px) {
+  .content-row {
+    position: relative;
+  }
+
+  .tab-button-col {
+    position: absolute;
+    left: 0;
+    height: calc(100%/3);
+  }
+
+  .button-col-src {
+    top: 0;
+  }
+
+  .button-col-cp {
+    top: calc(100%/3);
+  }
+
+  .button-col-result {
+    bottom: 0;
+  }
+}
+
+.src {
+  background-color: rgb(255, 216, 143);
+}
+
+.cp {
+  background-color: rgb(117, 180, 180);
+}
+
+.result {
+  background-color: rgb(177, 119, 177);
+}
+
 #render {
   overflow: scroll;
 }
 
-.input-sizer, #render {
+.input-sizer,
+#render {
   display: inline-grid;
   position: relative;
   padding: .25em .5em;
   margin: 5px;
   border: solid 1px;
   box-shadow: 4px 4px 0px #000;
-  > span {
+  background: white;
+
+  >span {
     text-transform: uppercase;
     font-size: 0.8em;
     font-weight: bold;
-    text-shadow: 2px 2px 0 rgba(0,0,0,.15);
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, .15);
   }
+
 }
 
-.input-sizer{
+.input-sizer {
   font-family: monospace;
   vertical-align: top;
   align-items: center;
-  
+
   &.stacked {
     padding: .5em;
     align-items: stretch;
-    
+
     &::after,
     input,
     textarea {
       grid-area: 2 / 1;
     }
   }
-  
+
   &::after,
   input,
   textarea {
@@ -60,23 +127,25 @@ textarea {
     appearance: none;
     border: none;
   }
-  
+
   span {
     padding: 0.25em;
   }
-  
+
   &::after {
     content: attr(data-value) ' ';
     visibility: hidden;
     white-space: pre-wrap;
   }
-  
+
   &:focus-within {
     outline: solid 1px blue;
     box-shadow: 4px 4px 0px blue;
-    
-    > span { color: blue; }
-    
+
+    >span {
+      color: blue;
+    }
+
     textarea:focus,
     input:focus {
       outline: none;

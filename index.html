@@ -29,61 +29,81 @@
       </symbol>
     </svg>
     <div id="error"></div>
-    <div class="row flex-grow-1 overflow-hidden">
-      <div class="col-12 col-lg-6 col-xxl-4 mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
-        <h2 class="row flex-shrink-1">Ultimate-Guitar</h2>
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Use</th>
-              <th scope="col">Print</th>
-              <th scope="col">Key</th>
-              <th scope="col">Value</th>
-            </tr>
-          </thead>
-          <tbody id="meta">
-            <tr>
-              <th><input type="checkbox" checked="true"></input></th>
-              <th><input type="checkbox" checked="true"></input></th>
-              <th>artist</th>
-              <td><input type="text" value="Metallica"></input>
-              <td>
-            </tr>
-            <tr>
-              <th><input type="checkbox" checked="true"></input></th>
-              <th><input type="checkbox" checked="true"></input></th>
-              <th>title</th>
-              <td><input type="text" value="Yeah yeah!"></input>
-              <td>
-            </tr>
-          </tbody>
-        </table>
-        <label class="input-sizer stacked">
-          <textarea id="source" oninput="this.parentNode.dataset.value = this.value" rows="1"
-            placeholder="hi"></textarea>
-        </label>
+    <div class="row flex-grow-1 overflow-hidden content-row">
+      <div class="tab-button-col tab-col src button-col-src">
+        <button class="btn btn-collapse" aria-label="collapseSrc">
+          <h2>Source</h2>
+        </button>
       </div>
-      <div class="col-12 col-lg-6 col-xxl-4 mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
-        <h2>ChordPro</h2>
-        <label class="input-sizer stacked">
-          <textarea id="chordpro" oninput="this.parentNode.dataset.value = this.value" rows="1"
-            placeholder="hi"></textarea>
-        </label>
+      <div style="width: calc((100% - 3*50px)/2); height: 100%" id="collapseSrc" class="tab-col tab-col-content src">
+        <div class="mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Use</th>
+                <th scope="col">Print</th>
+                <th scope="col">Key</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody id="meta">
+              <tr>
+                <th><input type="checkbox" checked="true"></input></th>
+                <th><input type="checkbox" checked="true"></input></th>
+                <th>artist</th>
+                <td><input type="text" value="Metallica"></input>
+                <td>
+              </tr>
+              <tr>
+                <th><input type="checkbox" checked="true"></input></th>
+                <th><input type="checkbox" checked="true"></input></th>
+                <th>title</th>
+                <td><input type="text" value="Yeah yeah!"></input>
+                <td>
+              </tr>
+            </tbody>
+          </table>
+          <label class="input-sizer stacked">
+            <textarea id="source" oninput="this.parentNode.dataset.value = this.value" rows="1"
+              placeholder="hi"></textarea>
+          </label>
+        </div>
       </div>
-      <div class="col-12 col-xxl-4 mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
-        <h2>Rendered</h2>
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Key</th>
-              <th scope="col">Metadata</th>
-            </tr>
-          </thead>
-          <tbody id="renderMeta">
-          </tbody>
-        </table>
-        <div class="overflow-hidden" id="render">
-          replace me
+      <div class="tab-button-col tab-col cp button-col-cp">
+        <button class="btn btn-collapse" aria-label="collapseCP">
+          <h2>ChordPro</h2>
+        </button>
+      </div>
+      <div style="width: 0px; height: 100%; display: none" id="collapseCP"
+        class="tab-col tab-col-content cp tab-col-hidden">
+        <div class="mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
+          <label class="input-sizer stacked">
+            <textarea id="chordpro" oninput="this.parentNode.dataset.value = this.value" rows="1"
+              placeholder="hi"></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="tab-button-col tab-col result button-col-result">
+        <button class="btn btn-collapse" aria-label="collapseResult">
+          <h2>Result</h2>
+        </button>
+      </div>
+      <div style="width: calc((100% - 3*50px)/2); height: 100%" id="collapseResult"
+        class="tab-col tab-col-content result">
+        <div class="mh-100 overflow-auto flex-grow-1 syncscroll" name="syncscrollGroup1">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Key</th>
+                <th scope="col">Metadata</th>
+              </tr>
+            </thead>
+            <tbody id="renderMeta">
+            </tbody>
+          </table>
+          <div class="overflow-hidden" id="render">
+            replace me
+          </div>
         </div>
       </div>
     </div>

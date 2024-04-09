@@ -140,6 +140,28 @@ Em
 
 **************************
 `
+
+
+const mediaQuerySm = window.matchMedia('(min-width: 768px)')
+const mediaQueryLg = window.matchMedia('(min-width: 1500px)')
+// Register event listener
+mediaQuerySm.addListener(refreshCollapsibleDisplays)
+mediaQueryLg.addListener(refreshCollapsibleDisplays)
+
+/*function handleTabletChange(e) {
+        // Check if the media query is true
+        if (e.matches) {
+                // Then log the following message to the console
+                console.log('Media Query Matched!')
+        } else {
+                console.log('Media Query Unmatched!')
+        }
+}
+mediaQuerySm.addListener(handleTabletChange)
+// Initial check
+handleTabletChange(mediaQuerySm);
+*/
+
 const elMeta = document.getElementById("meta")
 const elSrc = document.getElementById('source')
 const elCPro = document.getElementById('chordpro')
@@ -208,6 +230,75 @@ function parseUG() {
         }
 }
 elSrc.addEventListener('input', parseUG)
+
+var collapsibles = document.getElementsByClassName('btn-collapse')
+for (c of Array.from(collapsibles)) {
+        c.addEventListener('click', (e) => { toggleCollapsible(e.target.ariaLabel) })
+}
+const existCol = ['collapseSrc', 'collapseCP', 'collapseResult']
+let shownCol = existCol.toReversed()
+function toggleCollapsible(id) {
+        console.log(id)
+        if (shownCol.includes(id)) {
+                console.log("hide")
+                shownCol = shownCol.filter(v => v != id)
+        } else {
+                console.log("show")
+                shownCol.push(id)
+        }
+        console.log(shownCol)
+        refreshCollapsibleDisplays()
+}
+
+function refreshCollapsibleDisplays(e) {
+        // if fired by event and event got true, check if its possible to add columns
+        if (e?.matches) {
+                if (e.media.includes('768px')) {
+                        if (shownCol.length < 2) {
+                                for (col of existCol) {
+                                        if (!shownCol.includes(col)) {
+                                                shownCol.unshift(col)
+                                                break;
+                                        }
+                                }
+                        }
+                } else if (e.media.includes('1500px')) {
+                        if (shownCol.length < 3) {
+                                for (col of existCol) {
+                                        if (!shownCol.includes(col)) {
+                                                shownCol.unshift(col)
+                                        }
+                                }
+                        }
+                }
+        }
+        // reduce open tabs to a minimum based on window width
+        numMax = 1 + mediaQuerySm.matches + mediaQueryLg.matches // should be function of window width
+        shownCol.splice(0, shownCol.length - numMax)
+
+        if (shownCol.length == 0)
+                shownCol = ['collapseSrc']
+
+        // set widths
+
+        for (id of existCol) {
+                let col = document.getElementById(id)
+                if (shownCol.includes(id)) {
+                        if (numMax == 1) {
+                                col.style.position = "absolute"
+                                col.style.width = `calc(100% - 50px)`
+                        } else {
+                                col.style.width = `calc((100% - 3*50px)/${shownCol.length})`
+                                col.style.position = "relative"
+                        }
+                        col.style.display = "block"
+                } else {
+                        col.style.width = "0px";
+                        col.style.display = "none"
+                }
+        }
+}
+refreshCollapsibleDisplays()
 
 function renderCP() {
         let parser = new ChordSheetJS.ChordProParser();
