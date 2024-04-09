@@ -157,11 +157,27 @@ textarea {
   body {
     visibility: hidden;
   }
+
+  .tab-col-content {
+    position: absolute;
+    width: 0px;
+    left: 0;
+    display: none;
+  }
+
+  #collapseResult {
+    position: absolute !important;
+    width: 100% !important;
+    left: 0;
+    display: block !important;
+  }
+
   #render {
     visibility: visible;
     position: absolute;
     left: 0;
     top: 0;
     border-style: none;
+    box-shadow: none;
   }
 }

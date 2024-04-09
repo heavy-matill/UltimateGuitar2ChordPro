@@ -141,7 +141,6 @@ Em
 **************************
 `
 
-
 const mediaQuerySm = window.matchMedia('(min-width: 768px)')
 const mediaQueryLg = window.matchMedia('(min-width: 1500px)')
 // Register event listener
@@ -411,10 +410,6 @@ function download(filename, text) {
 
 function printResult() {
         // only result is shown with css @media print
-        // show result
-        if (!shownCol.includes("collapseResult"))
-                toggleCollapsible("collapseResult")
-        // print
         window.print()
 }
 
