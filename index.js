@@ -167,9 +167,11 @@ const elSrc = document.getElementById('source')
 const elCPro = document.getElementById('chordpro')
 const elRndr = document.getElementById('render')
 const elErr = document.getElementById("error")
-const elBtDown = document.getElementById("download")
+const elBtDown = document.getElementById("downloadCP")
+const elBtPrint = document.getElementById("printResult")
 
 elBtDown.addEventListener("click", downloadChordPro)
+elBtPrint.addEventListener("click", printResult)
 let title = ""
 let artist = ""
 const metaKeys = ["title", "sorttitle", "subtitle", "artist", "composer", "lyricist", "copyright", "album", "year", "key", "time", "tempo", "duration", "capo", "meta"]
@@ -224,8 +226,10 @@ function parseUG() {
                         new bootstrap.Alert(elErr.children[0]).close()
                 }
                 elBtDown.removeAttribute("disabled")
+                elBtPrint.removeAttribute("disabled")
         } catch (e) {
                 elBtDown.setAttribute("disabled", true)
+                elBtPrint.setAttribute("disabled", true)
                 elErr.innerHTML = alertHTML(e)
         }
 }
@@ -403,6 +407,15 @@ function download(filename, text) {
         element.click();
 
         document.body.removeChild(element);
+}
+
+function printResult() {
+        // only result is shown with css @media print
+        // show result
+        if (!shownCol.includes("collapseResult"))
+                toggleCollapsible("collapseResult")
+        // print
+        window.print()
 }
 
 function alertHTML(msg) {

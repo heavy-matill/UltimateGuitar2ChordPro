@@ -15,12 +15,12 @@ textarea {
   width: 50px !important;
 }
 
-.tab-button-col>button {
+.tab-button-col>button:first-of-type {
   width: 100%;
   height: 100%
 }
 
-.tab-button-col>button>h2 {
+.tab-button-col>button:first-of-type>h2 {
   transform-origin: 0 0;
   transform: rotate(270deg);
   right: 0;
@@ -150,5 +150,18 @@ textarea {
     input:focus {
       outline: none;
     }
+  }
+}
+
+@media print {
+  body {
+    visibility: hidden;
+  }
+  #render {
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-style: none;
   }
 }
