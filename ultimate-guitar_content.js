@@ -83,7 +83,7 @@ function main(e) {
 
 			// get metadata
 			const titleEle = document.getElementsByTagName('h1')[0]
-			dictMeta['title'] = titleEle.innerText.split(' ').slice(0, -1).join(' ')
+			dictMeta['title'] = titleEle.innerText.trim().split(' ').slice(0, -1).join(' ')
 			const artistEle = titleEle.nextElementSibling
 			dictMeta['artist'] = Array.from(artistEle.getElementsByTagName("a")).map(el => el.innerText)
 
