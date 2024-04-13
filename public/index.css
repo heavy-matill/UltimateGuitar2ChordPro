@@ -3,8 +3,11 @@ body {
   min-height: 100%;
 }
 
-#header {
+body>div {
   background: #2d2d2d;
+}
+
+#header {
   color: #ddc;
 }
 

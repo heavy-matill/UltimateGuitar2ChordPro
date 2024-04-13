@@ -331,63 +331,6 @@ elCPro.addEventListener('input', renderCP)
 elSrc.value = ug;
 parseUG();
 
-/*browser.runtime.onMessage.addListener((request) => {
-        console.log("Message from the background script:");
-        console.log(request.greeting);
-        return Promise.resolve({ response: "Hi from content script" });
-  });*/
-function addMetaField(elParent, key, value) {
-        const isComment = (key.startsWith("comment: ") || key.startsWith("c: "))
-        let elRow = document.createElement("tr")
-        let elChkT = document.createElement("th")
-        let elChk = document.createElement("input")
-        elChk.type = "checkbox"
-        elChk.checked = !isComment
-        elChk.addEventListener('change', parseUG)
-        elChkT.appendChild(elChk)
-
-        let elChkT2 = document.createElement("th")
-        let elChk2 = document.createElement("input")
-        elChk2.type = "checkbox"
-        elChk2.checked = false
-        if (isComment)
-                elChk2.setAttribute("disabled", true)
-        elChk2.addEventListener('change', parseUG)
-        elChkT2.appendChild(elChk2)
-
-        let elLabT = document.createElement("th")
-        elLabT.innerText = key
-        let elValT = document.createElement("tr")
-        let elVal = document.createElement("input")
-        elVal.type = "text"
-        elVal.value = value
-        elVal.style = "width: 100%;"
-        elValT.appendChild(elVal)
-        elVal.addEventListener('input', parseUG)
-        for (el of [elChkT, elChkT2, elLabT, elValT])
-                elRow.appendChild(el)
-        elParent.appendChild(elRow)
-}
-
-chrome.runtime.onMessage.addListener(
-        function (request, sender, sendResponse) {
-                elMeta.innerHTML = ""
-                for (key in request) {
-                        if (key != "chordSheet") {
-                                let value = request[key]
-                                if (typeof value === "string") {
-                                        addMetaField(elMeta, key, value)
-                                } else {
-                                        for (val of value)
-                                                addMetaField(elMeta, key, val)
-                                }
-                        }
-                }
-                elSrc.value = request.chordSheet ?? ""
-                parseUG();
-        }
-);
-
 function downloadChordPro() {
         let strCP = elCPro.value.replaceAll('\\', '\\\\')
         let filename = artist + (artist.length ? " - " : "") + title

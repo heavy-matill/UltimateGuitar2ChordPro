@@ -31,17 +31,20 @@ chrome.action.onClicked.addListener(async () =>
 
 async function convert(dictMessage) {
     let tab
-    const localURL = chrome.runtime.getURL("index.html");
+    // local
+    // const url = chrome.runtime.getURL("index.html");
+    // hosted
+    const url = "https://ultimate-guitar-2-chord-pro.web.app/"
     // check if tab exists:
     const tabs = await chrome.tabs.query({
-        url: [localURL]
+        url: [url]
     });
     if (tabs.length) {
         tab = tabs[0]
         chrome.tabs.update(tab.id, { active: true })
     } else {
         tab = await chrome.tabs.create({
-            url: localURL,
+            url: url,
             active: true
         })
     }

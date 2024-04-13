@@ -6,16 +6,30 @@
     "permissions": [
         "tabs",
         "activeTab",
-        "scripting",
-        "<all_urls>"
+        "scripting"
     ],
     "action": {},
     "background": {
         "service_worker": "service_worker.js"
     },
-    "content_scripts": [{
-        "matches": ["*://*.ultimate-guitar.com/tab/*"],
-        "js": ["ChordSheetJS.bundle.js", "ultimate-guitar_content.js"],
-        "run_at": "document_end"
-    }]
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.ultimate-guitar.com/tab/*"
+            ],
+            "js": [
+                "ultimate-guitar_content.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://ultimate-guitar-2-chord-pro.web.app/*"
+            ],
+            "js": [
+                "converter_content.js"
+            ],
+            "run_at": "document_start"
+        }
+    ]
 }
