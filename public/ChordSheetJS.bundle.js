@@ -16681,7 +16681,6 @@ Or set the song key before changing key:
         * @returns object A plain JS object containing all chord sheet data
         */
         serialize(song) {
-          console.log(song.lines.map((line) => this.serializeLine(line)));
           return {
             type: $1c14afc274b727b7$var$CHORD_SHEET,
             lines: song.lines.map((line) => this.serializeLine(line))
@@ -33804,6 +33803,7 @@ Or set the song key before changing key:
       var $db9c80925e255cd2$var$CHORUS_LINE_REGEX = /^\[(Chorus)]/i;
       var $db9c80925e255cd2$var$OTHER_METADATA_LINE_REGEX = /^\[([^\]]+)]/;
       var $db9c80925e255cd2$var$CHORD_LINE_REGEX = /^\s*((([A-G|Do|Re|Mi|Fa|Sol|La|Si])(#|b)?([^/\s]*)(\/([A-G|Do|Re|Mi|Fa|Sol|La|Si])(#|b)?)?)(\s|$)+)+(\s|$)+/;
+      var $db9c80925e255cd2$var$TAB_REGEX = /[0-9\-\/\\|xX]{8,}/;
       var $db9c80925e255cd2$var$REPETITION_REGEX = /([0-9]+x:*)|(x[0-9]+:*)/gm;
       var $db9c80925e255cd2$var$startSectionTags = {
         [(0, $af8d31735c159a26$export$4b194284baed1659)]: (0, $5e9ede69210ec54a$export$deca399f8cd9b7dc),
@@ -33840,10 +33840,7 @@ Or set the song key before changing key:
             this.startSection((0, $af8d31735c159a26$export$8db6c706fc9142b2), label);
           } else if ($db9c80925e255cd2$var$OTHER_METADATA_LINE_REGEX.test(line))
             this.parseMetadataLine(line);
-          else if (
-            // check if line has many dashes
-            line.length > 8 && line.length - line.replaceAll("-", "").length > 5
-          )
+          else if ($db9c80925e255cd2$var$TAB_REGEX.test(line))
             this.writeTabLine(line);
           else if ($db9c80925e255cd2$var$CHORD_LINE_REGEX.test(line.replace($db9c80925e255cd2$var$REPETITION_REGEX, "")) && line.match($db9c80925e255cd2$var$REPETITION_REGEX)?.length) {
             let rep_only = line.match($db9c80925e255cd2$var$REPETITION_REGEX);
@@ -33877,8 +33874,10 @@ Or set the song key before changing key:
         }
         writeTabLine(line) {
           this.startNewLine();
-          if (this.currentSectionType != (0, $af8d31735c159a26$export$f1c9dd0f5207dd5e))
+          if (this.currentSectionType != (0, $af8d31735c159a26$export$f1c9dd0f5207dd5e)) {
+            this.startNewLine();
             this.startSection((0, $af8d31735c159a26$export$f1c9dd0f5207dd5e));
+          }
           if (!this.songLine)
             throw new Error("Expected this.songLine to be present");
           this.songLine.addChordLyricsPair(null, line);
