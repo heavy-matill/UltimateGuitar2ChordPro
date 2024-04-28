@@ -33876,11 +33876,9 @@ Or set the song key before changing key:
           });
         }
         writeTabLine(line) {
-            this.startNewLine();
-          if (this.currentSectionType != (0, $af8d31735c159a26$export$f1c9dd0f5207dd5e)) {
-            this.startNewLine();
+          this.startNewLine();
+          if (this.currentSectionType != (0, $af8d31735c159a26$export$f1c9dd0f5207dd5e))
             this.startSection((0, $af8d31735c159a26$export$f1c9dd0f5207dd5e));
-          }
           if (!this.songLine)
             throw new Error("Expected this.songLine to be present");
           this.songLine.addChordLyricsPair(null, line);
