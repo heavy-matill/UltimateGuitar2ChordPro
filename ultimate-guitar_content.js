@@ -93,7 +93,9 @@ function main(e) {
 				dictMeta[tr.children[0].innerText.slice(0, -1)] = tr.children[1].innerText
 			}
 
-			if (!isOfficial) {
+			if (isOfficial) {
+				dictMeta['Author'] = "official"
+			} else {
 				// Author and creation data
 				const authorEle = tableEle.parentElement.nextSibling
 				const strAuthor = authorEle.innerText.split('ast edit on ')
