@@ -90,9 +90,9 @@ function main(e) {
 
 			// get more metadata
 			const tableEle = titleEle.parentElement.nextSibling.firstChild
-			for (tr of tableEle.children) {
-				dictMeta[tr.children[0].innerText.slice(0, -1)] = tr.children[1].innerText
-			}
+			//for (tr of tableEle.children) {
+			//	dictMeta[tr.children[0].innerText.slice(0, -1)] = tr.children[1].innerText
+			//}
 
 			if (isOfficial) {
 				dictMeta['Author'] = "official"
