@@ -21,6 +21,7 @@
 });*/
 chrome.runtime.onMessage.addListener( // this is the message listener
     async function (request, sender, sendResponse) {
+        console.log({request});
         await convert(request);
     }
 );
@@ -39,6 +40,7 @@ async function convert(dictMessage) {
     const tabs = await chrome.tabs.query({
         url: [url]
     });
+    console.log({tabs})
     if (tabs.length) {
         tab = tabs[0]
         chrome.tabs.update(tab.id, { active: true })

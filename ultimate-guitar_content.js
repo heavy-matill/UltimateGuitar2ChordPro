@@ -48,7 +48,7 @@ function main(e) {
 		}
 
 		function addButton() {
-			const divAddToPlaylist = Array.from(document.getElementsByTagName("button")).filter(e => ["ADDED TO FAVORITES", "ADD TO FAVORITES"].includes(e.innerText.toUpperCase()))[0].parentNode
+			const divAddToPlaylist = Array.from(document.getElementsByTagName("button")).filter(e => ["AUTOSCROLL", "PAUSE"].includes(e.innerText.toUpperCase()))[0].parentNode
 			const divConvert = divAddToPlaylist.parentNode.insertBefore(divAddToPlaylist.cloneNode(true), divAddToPlaylist.parentNode.children[0])
 			// change text
 			divConvert.getElementsByTagName('span')[0].innerHTML = 'ChordPro'
@@ -63,32 +63,33 @@ function main(e) {
 		}
 
 		function convertSong() {
-
+			let main = document.getElementsByTagName("main")[0]
+			let tabDiv = main.lastChild.lastChild.children[main.lastChild.lastChild.children.length - 2]
 			let chordsEle
 			if (isOfficial) {
 				parseTempoFromStrumming(Array.from(document.getElementsByTagName("section")).filter(el => el.innerText.startsWith("STRUMMING"))[0])
 				chordsEle = document.getElementsByTagName("pre")[0]
 			} else {
-				chordsEle = document.getElementsByTagName('aside')[0].nextSibling
-				if (chordsEle.innerText.startsWith('CHORDS'))
+				chordsEle = tabDiv.lastChild.firstChild.lastChild.firstChild.firstChild
+				if (chordsEle.innerText.startsWith('Chords\n'))
 					chordsEle = chordsEle.nextSibling;
-				if (chordsEle.innerText.startsWith('STRUMMING')) {
+				if (chordsEle.innerText.startsWith('Strumming pattern\n')) {
 					// get tempos if any available
 					parseTempoFromStrumming(chordsEle)
 					chordsEle = chordsEle.nextSibling;
 				}
-
+				chordsEle = tabDiv.firstChild
 			}
 			let chordSheet = chordsEle.innerText.slice(0, -1).replaceAll('\n\n', '\n');
 
 			// get metadata
 			const titleEle = document.getElementsByTagName('h1')[0]
 			dictMeta['title'] = titleEle.innerText.trim().split(' ').slice(0, -1).join(' ')
-			const artistEle = titleEle.nextElementSibling
+			const artistEle = titleEle.nextSibling.nextSibling
 			dictMeta['artist'] = Array.from(artistEle.getElementsByTagName("a")).map(el => el.innerText)
 
 			// get more metadata
-			const tableEle = document.getElementsByTagName('table')[0]
+			const tableEle = titleEle.parentElement.nextSibling.firstChild
 			for (tr of tableEle.children) {
 				dictMeta[tr.children[0].innerText.slice(0, -1)] = tr.children[1].innerText
 			}
@@ -97,24 +98,10 @@ function main(e) {
 				dictMeta['Author'] = "official"
 			} else {
 				// Author and creation data
-				const authorEle = tableEle.parentElement.nextSibling
-				const strAuthor = authorEle.innerText.split('ast edit on ')
-				console.log({ strAuthor })
-				dictMeta['Author'] = strAuthor[0].replace(/^Author\s*/, '').replace(/\..*$/g, '')
-				if (strAuthor[1].endsWith('ago')) {
-					let matches = strAuthor[1].match(/([0-9]*)\s([a-z]*)\s/);
-					let numTime = Number(matches[1])
-					let date = new Date()
-					if (matches[2].startsWith('minute'))
-						date.setMinutes(date.getMinutes() - numTime)
-					else if (matches[2].startsWith('hour'))
-						date.setHours(date.getHours() - numTime)
-					else if (matches[2].startsWith('day'))
-						date.setHours(date.getHours() - numTime * 24)
-					dictMeta['Last edit on'] = new Date(date).toISOString().split('T')[0]
-				} else {
-					dictMeta['Last edit on'] = new Date(strAuthor[1]).toISOString().split('T')[0]
-				}
+				const authorEle = tableEle.lastChild.getElementsByTagName("a")[0]
+				dictMeta['Author'] = authorEle.innerText
+				const dateEle = tabDiv.firstChild.children[1].lastChild
+				dictMeta['Last edit on'] = new Date(dateEle.innerText.replaceAll('Last update: ','')).toISOString().split('T')[0]
 			}
 
 			const keysChordPro = ["title", "sorttitle", "subtitle", "artist", "composer", "lyricist", "copyright", "album", "year", "key", "time", "tempo", "duration", "capo", "meta"]
@@ -127,7 +114,7 @@ function main(e) {
 			}
 
 			chrome.runtime.sendMessage({ chordSheet: chordSheet, ...dictMetaOut }, function (response) {
-				//console.log(response);
+				console.log(response);
 			});
 			/*const parser = new ChordSheetJS.UltimateGuitarParser();
 			const song = parser.parse(chordSheet);
