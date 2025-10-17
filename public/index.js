@@ -202,7 +202,6 @@ function parseUG() {
                                 strMeta = strMeta + `{c: ${key}: ${val}}\n`
                         }
                 }
-                let parser = new ChordSheetJS.UltimateGuitarParser();
                 // preprocess
                 let songSrc = elSrc.value
                 // remove first line if its the title
@@ -211,19 +210,13 @@ function parseUG() {
                 if (artist.length)
                         songSrc = songSrc.replace(new RegExp(`^[^\\n]*(${artist})[^\\n]*\\n`, 'g'), "");
                 songSrc.value = songSrc
-
-                let song = parser.parse(songSrc);
-                let formatter = new ChordSheetJS.ChordProFormatter();
-                let chordpro = formatter.format(song);
+                let chordpro = iterativeParser(songSrc, songSrc);
                 chordpro = strMeta + chordpro;
                 elCPro.value = chordpro;
                 // for full size styled textarea
                 elSrc.parentNode.dataset.value = songSrc
                 elCPro.parentNode.dataset.value = chordpro
                 renderCP();
-                if (elErr.children.length) {
-                        new bootstrap.Alert(elErr.children[0]).close()
-                }
                 elBtDown.removeAttribute("disabled")
                 elBtPrint.removeAttribute("disabled")
         } catch (e) {
@@ -253,6 +246,33 @@ function toggleCollapsible(id) {
         refreshCollapsibleDisplays()
 }
 
+function iterativeParser(text, originalText) {
+        let parser = new ChordSheetJS.UltimateGuitarParser();
+        let lines = text.split('\n')
+        let originalLines = originalText.split('\n')
+        try {
+                let song = parser.parse(text)
+                let formatter = new ChordSheetJS.ChordProFormatter();
+                let chordpro = formatter.format(song);
+                if (originalLines.length > lines.length) {
+                        elErr.innerHTML = alertHTML(`Warning: could not parse past line ${lines.length}, aborting at "${originalLines[lines.length + 1]}".`)
+                        console.log("send warning")
+                } else {
+                        if (elErr.children.length) {
+                                new bootstrap.Alert(elErr.children[0]).close()
+                        }
+                }
+                console.log("parsed successfully number of lines: " + lines.length)
+                return chordpro
+        } catch (error) {
+                if (lines.length > 1) {
+                        let newText = lines.slice(0, lines.length - 2).join('\n')
+                        return iterativeParser(newText, text)
+                }
+                else
+                        return iterativeParser("")
+        }
+}
 function refreshCollapsibleDisplays(e) {
         // if fired by event and event got true, check if its possible to add columns
         if (e?.matches) {
