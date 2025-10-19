@@ -244,7 +244,7 @@ function main(e) {
 					parseTempoFromStrumming(chordsEle)
 					chordsEle = chordsEle.nextSibling;
 				}
-				chordsEle = tabDiv.firstChild
+				chordsEle = tabDiv.firstChild.firstChild;
 			}
 			let chordSheet = chordsEle.innerText.slice(0, -1).replaceAll('\n\n', '\n');
 
