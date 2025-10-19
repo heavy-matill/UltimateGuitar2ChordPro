@@ -210,8 +210,12 @@ function parseUG() {
                 if (artist.length)
                         songSrc = songSrc.replace(new RegExp(`^[^\\n]*(${artist})[^\\n]*\\n`, 'g'), "");
                 songSrc.value = songSrc
+
+                songSrc = replaceParts(songSrc)
+
                 let chordpro = iterativeParser(songSrc, songSrc);
                 chordpro = strMeta + chordpro;
+                chordpro = replacePartsBack(chordpro);
                 elCPro.value = chordpro;
                 // for full size styled textarea
                 elSrc.parentNode.dataset.value = songSrc
@@ -245,7 +249,18 @@ function toggleCollapsible(id) {
         console.log(shownCol)
         refreshCollapsibleDisplays()
 }
+const extraString = '123450123901025901295019205091025901239012059012305901235019023509120590123'
+const extraVerses = ['Strophe', 'Bridge', 'Intro', 'Outro', 'Interlude', 'Pre-Chorus', 'Post-Chorus', 'Riff', 'Solo']
+function replaceParts(text) {
+        const findRe = new RegExp("\\[(" + extraVerses.map(v => '('+v+')').join('|') + ")([^\\]]*)\\]", "g")
+        return text.replaceAll(findRe, '[Verse ' + extraString + '$1$' + String(extraVerses.length + 2) + ']')
+        .replaceAll(/\[Refrain\]/g, '[Chorus]')
+}
 
+function replacePartsBack(text) {        
+        const findReBack = new RegExp("\\{start_of_verse: Verse " + extraString + "([^\\}]*)\\}", "g")        
+        return text.replaceAll(findReBack, '{start_of_verse: $1}') 
+}
 function iterativeParser(text, originalText) {
         let parser = new ChordSheetJS.UltimateGuitarParser();
         let lines = text.split('\n')
