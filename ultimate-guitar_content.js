@@ -230,7 +230,7 @@ function main(e) {
 
 		function convertSong() {
 			let main = document.getElementsByTagName("main")[0]
-			let tabDiv = main.lastChild.lastChild.children[main.lastChild.lastChild.children.length - 2]
+			let tabDiv = main.firstChild.firstChild.children[1].firstChild.children[main.firstChild.firstChild.children[1].firstChild.children.length-4]
 			let chordsEle
 			if (isOfficial) {
 				parseTempoFromStrumming(Array.from(document.getElementsByTagName("section")).filter(el => el.innerText.startsWith("STRUMMING"))[0])
@@ -255,7 +255,7 @@ function main(e) {
 			dictMeta['artist'] = Array.from(artistEle.getElementsByTagName("a")).map(el => el.innerText)
 
 			// get more metadata
-			const tableEle = titleEle.parentElement.nextSibling.firstChild
+			const tableEle = titleEle.parentElement.parentElement.parentElement.children[3]
 			//for (tr of tableEle.children) {
 			//	dictMeta[tr.children[0].innerText.slice(0, -1)] = tr.children[1].innerText
 			//}
@@ -264,10 +264,10 @@ function main(e) {
 				dictMeta['Author'] = "official"
 			} else {
 				// Author and creation data
-				const authorEle = tableEle.lastChild.getElementsByTagName("a")[0]
+				const authorEle = tableEle.nextSibling.getElementsByTagName("a")[0]
 				dictMeta['Author'] = authorEle.innerText
-				const dateEle = tabDiv.firstChild.children[1].lastChild
-				let dateString = dateEle.innerText.replaceAll('Last update: ','');
+				const dateEle = authorEle.parentElement.parentElement.parentElement.parentElement
+				let dateString = dateEle.innerText.replace(/.*last edit on /,'');
 				if (dateString.endsWith('ago')) {
 					dateString = chrono.parseDate(dateString);
 				}
